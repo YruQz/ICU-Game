@@ -6,7 +6,17 @@ TagManager:
   tags:
   - Ground
   - SettingPage
+  - Wall
+  - WoodenBox
+  - IronBox
+  - PressBox
+  - DeadArea
+  - PedalLight
+  - ButtonLight
+  - NormalLight
   - Light
+  - MovePlatform
+  - Mobile
   layers:
   - Default
   - TransparentFX
@@ -14,8 +24,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Achievement
+  - ObstacleLayer
   - 
   - 
   - 
@@ -47,9 +57,18 @@ TagManager:
   - name: background
     uniqueID: 2634966249
     locked: 0
+  - name: decoration
+    uniqueID: 1986346087
+    locked: 0
   - name: groud
     uniqueID: 2092813123
     locked: 0
+  - name: item
+    uniqueID: 641018181
+    locked: 0
   - name: player
     uniqueID: 2306381509
+    locked: 0
+  - name: Lag&Ann
+    uniqueID: 2902197069
     locked: 0

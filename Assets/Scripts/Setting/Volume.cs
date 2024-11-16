@@ -1,18 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Volume : MonoBehaviour
 {
-    public static Volume instance;
+    public static Volume Instance { get; private set; }
+    private float initialVolume;
+    public bool volumeChanged = false;
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
-            DontDestroyOnLoad(gameObject); // 确保切换场景时不销毁
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            // 从 PlayerPrefs 获取初始音量
+            initialVolume = GetVolume();
+            AudioListener.volume = initialVolume;
+
+            // 确保初始状态下 volumeChanged 为 false
+            volumeChanged = false;
         }
         else
         {
@@ -20,23 +28,41 @@ public class Volume : MonoBehaviour
         }
     }
 
-    // 设置音量
     public void SetVolume(float volume)
     {
-        AudioListener.volume = volume;
-        PlayerPrefs.SetFloat("gameVolume", volume); // 保存音量设置
-        PlayerPrefs.Save();
+        // 检查音量是否与初始音量不同
+        if (!Mathf.Approximately(initialVolume, volume))
+        {
+            volumeChanged = true;
+            AudioListener.volume = volume;
+
+            // 存储新的音量值
+            PlayerPrefs.SetFloat("gameVolume", volume);
+            PlayerPrefs.Save();
+        }
     }
 
-    // 获取当前音量
     public float GetVolume()
     {
-        return PlayerPrefs.GetFloat("gameVolume", 1f); // 默认音量为1
+        return PlayerPrefs.GetFloat("gameVolume", 1f);
     }
 
-    private void Start()
+    public void ResetVolumeChange()
     {
-        // 每次启动时恢复之前的音量设置
-        AudioListener.volume = GetVolume();
+        volumeChanged = false; // 重置音量变化标志
+    }
+
+    // 当应用程序退出时调用
+    private void OnApplicationQuit()
+    {
+        ExitGame();
+    }
+
+    // 退出游戏的方法
+    private void ExitGame()
+    {
+        ResetVolumeChange(); // 重置音量变化标志
+        PlayerPrefs.DeleteAll(); // 清除所有存档数据
+        Application.Quit(); // 退出应用程序
     }
 }

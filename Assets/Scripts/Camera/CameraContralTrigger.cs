@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public class CameraContralTrigger : MonoBehaviour
 {
@@ -35,10 +37,28 @@ public class CameraContralTrigger : MonoBehaviour
 
             Vector2 exitDirection = (collider.transform.position - _coll.bounds.center).normalized;
 
-            if(customInspectorObject.swapCamera && customInspectorObject.cameraOnLeft != null && customInspectorObject.cameraOnRight != null)
+            if(customInspectorObject.swapCamera && 
+            customInspectorObject.cameraOnLeft != null && 
+            customInspectorObject.cameraOnRight != null)
             {
+                Debug.Log($"Exit Direction Detected: {exitDirection}");
                 //swap cameras
-                CameraManager.Instance.SwapCamera(customInspectorObject.cameraOnLeft, customInspectorObject.cameraOnRight, exitDirection);
+                CameraManager.Instance.SwapCamera(
+                customInspectorObject.cameraOnLeft, 
+                customInspectorObject.cameraOnRight, 
+                exitDirection);
+            }
+
+            if(customInspectorObject.TopBottomCamera && 
+            customInspectorObject.cameraOnTop!= null && 
+            customInspectorObject.cameraOnBottom!= null)
+            {
+                //Debug.Log($"Exit Direction Detected: {exitDirection}");
+                //top bottom camera
+                CameraManager.Instance.TopBottomCamera(
+                    customInspectorObject.cameraOnTop, 
+                    customInspectorObject.cameraOnBottom, 
+                    exitDirection);
             }
             if(customInspectorObject.panCameraOnContact)
             {
@@ -54,9 +74,12 @@ public class CustomInspectorObject
 {
     public bool swapCamera = false;
     public bool panCameraOnContact = false;
+    public bool TopBottomCamera = false;
 
     [HideInInspector] public CinemachineVirtualCamera cameraOnLeft;
     [HideInInspector] public CinemachineVirtualCamera cameraOnRight;
+    [HideInInspector] public CinemachineVirtualCamera cameraOnTop;
+    [HideInInspector] public CinemachineVirtualCamera cameraOnBottom;
 
     [HideInInspector] public PanDirection panDirection;
     [HideInInspector] public float panDistance = 3f;
@@ -71,6 +94,7 @@ public enum PanDirection
     Right
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(CameraContralTrigger))]
 [CanEditMultipleObjects]  // This attribute allows multi-object editing.
 public class MyScriptEditor : Editor
@@ -80,6 +104,8 @@ public class MyScriptEditor : Editor
     SerializedProperty panCameraOnContact;
     SerializedProperty cameraOnLeft;
     SerializedProperty cameraOnRight;
+    SerializedProperty cameraOnTop;
+    SerializedProperty cameraOnBottom;
     SerializedProperty panDirection;
     SerializedProperty panDistance;
     SerializedProperty panTime;
@@ -91,6 +117,8 @@ public class MyScriptEditor : Editor
         panCameraOnContact = customInspectorObject.FindPropertyRelative("panCameraOnContact");
         cameraOnLeft = customInspectorObject.FindPropertyRelative("cameraOnLeft");
         cameraOnRight = customInspectorObject.FindPropertyRelative("cameraOnRight");
+        cameraOnTop = customInspectorObject.FindPropertyRelative("cameraOnTop");
+        cameraOnBottom = customInspectorObject.FindPropertyRelative("cameraOnBottom");
         panDirection = customInspectorObject.FindPropertyRelative("panDirection");
         panDistance = customInspectorObject.FindPropertyRelative("panDistance");
         panTime = customInspectorObject.FindPropertyRelative("panTime");
@@ -108,6 +136,12 @@ public class MyScriptEditor : Editor
             EditorGUILayout.PropertyField(cameraOnRight, new GUIContent("Camera on Right"));
         }
 
+        if (customInspectorObject.FindPropertyRelative("TopBottomCamera").boolValue)
+        {
+        EditorGUILayout.PropertyField(cameraOnTop, new GUIContent("Camera on Top"));
+        EditorGUILayout.PropertyField(cameraOnBottom, new GUIContent("Camera on Bottom"));
+        }
+
         if (panCameraOnContact.boolValue)
         {
             EditorGUILayout.PropertyField(panDirection, new GUIContent("Camera Pan Direction"));
@@ -121,3 +155,4 @@ public class MyScriptEditor : Editor
         }
     }
 }
+#endif
